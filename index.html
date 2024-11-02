@@ -8,32 +8,29 @@
 </head>
 <body class="bg-[#FEF9F2]">
     <!-- Search Form -->
-    <form class="max-w-md mx-auto mt-10">
-        <h1 class="font-normal hover:font-bold">Search</h1>
-        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+    <form class="max-w-md mx-auto mt-10 px-4">
+        <h1 class="font-normal hover:font-bold text-center">Search</h1>
+        <label for="default-search" class="sr-only">Search</label>
         <div class="relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <!-- Search Icon -->
-                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                 </svg>
             </div>
-            <input type="search" id="default-search" class="focus:outline-none block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search..." required />
-            <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+            <input type="search" id="default-search" class="focus:outline-none block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search..." aria-label="Search Input" required />
+            <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Search</button>
         </div>
-        <!-- Button to Open Modal -->
-        <button type="button" id="addTaskBtn" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded mt-5">Add Task +</button>
+        <button type="button" id="addTaskBtn" class="bg-blue-700 hover:bg-blue-800 text-white px-4 shadow-md py-2 rounded mt-5 w-full">Add Task +</button>
     </form>
 
-    <div id="taskModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <!-- Task Modal -->
+    <div id="taskModal" class="fixed z-10 inset-0 overflow-y-auto hidden" role="dialog" aria-hidden="true">
         <div class="flex items-center justify-center min-h-screen px-4 text-center">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">​</span>
             <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full p-6">
                 <h2 class="text-2xl font-bold mb-4">Add New Task</h2>
-                <!-- Task Form -->
                 <form id="taskForm" class="space-y-4">
                     <div>
                         <label for="task" class="block text-sm font-medium text-gray-700">Task</label>
@@ -75,7 +72,7 @@
     </div>
 
     <!-- Task Sections -->
-    <div class="container mx-auto mt-10">
+    <div class="container mx-auto mt-10 px-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             <div class="max-w-md w-full">
                 <div class="bg-red-500 text-white text-center py-1 rounded-t-md">To Do <span id="todo-count">(0)</span></div>
