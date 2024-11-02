@@ -1,3 +1,5 @@
+let tasks = [];
+
 // Get the modal and button elements
 const modal = document.getElementById('taskModal');
 const addTaskBtn = document.getElementById('addTaskBtn');
@@ -19,18 +21,50 @@ closeModal.onclick = function () {
 // Handle form submission
 const taskForm = document.getElementById('taskForm');
 
+function updateTaskCounters() {
+    let todoCount = 0;
+    let doingCount = 0;
+    let doneCount = 0;
+
+    tasks.forEach(task => {
+        if (task.status === 'do') todoCount++;
+        else if (task.status === 'doing') doingCount++;
+        else if (task.status === 'done') doneCount++;
+    });
+
+    document.getElementById('todo-count').textContent = `(${todoCount})`;
+    document.getElementById('in-progress-count').textContent = `(${doingCount})`;
+    document.getElementById('done-count').textContent = `(${doneCount})`;
+}
+
 taskForm.onsubmit = function (e) {
     e.preventDefault(); // Prevent form from submitting normally
 
-    // form values
+    // Form values
     const taskName = document.getElementById('task').value;
     const taskDate = document.getElementById('date').value;
     const taskDescription = document.getElementById('description').value;
     const taskStatus = document.getElementById('status').value;
     const taskPriority = document.getElementById('priority').value;
 
+    if (!taskName) {
+        alert("Task name is required!");
+        return; // Prevent further execution if task name is missing
+    }
+
+    const newTask = {
+        name: taskName,
+        date: taskDate,
+        description: taskDescription,
+        status: taskStatus,
+        priority: taskPriority,
+    };
+
     if (currentTask) {
         // Update existing task
+        const taskIndex = tasks.findIndex(task => task.name === currentTask.querySelector('h2').textContent);
+        tasks[taskIndex] = newTask; // Update the task in the array
+
         currentTask.querySelector('h2').textContent = taskName;
         currentTask.querySelector('span').textContent = taskDate;
         currentTask.querySelector('p').textContent = taskDescription;
@@ -44,10 +78,13 @@ taskForm.onsubmit = function (e) {
             addTaskToSection(taskStatus, currentTask);
         }
     } else {
+        // Add new task to the array
+        tasks.push(newTask);
+
         // Create new task card
-        const newTask = document.createElement('div');
-        newTask.classList.add('border', 'rounded-md', 'shadow-md', 'p-4');
-        newTask.innerHTML = `
+        const newTaskElement = document.createElement('div');
+        newTaskElement.classList.add('border', 'rounded-md', 'shadow-md', 'p-4');
+        newTaskElement.innerHTML = `
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-bold">${taskName}</h2>
                 <span class="text-sm text-gray-500">${taskDate}</span>
@@ -61,14 +98,16 @@ taskForm.onsubmit = function (e) {
         `;
 
         // Append task to the correct section based on status
-        addTaskToSection(taskStatus, newTask);
+        addTaskToSection(taskStatus, newTaskElement);
     }
 
     // Close modal after adding/updating task
     modal.classList.add('hidden');
+    currentTask = null; // Reset current task
+    taskForm.reset(); // Reset form fields
 
-    // Optionally, reset form fields
-    taskForm.reset();
+    // Update task counters
+    updateTaskCounters();
 };
 
 // Function to add task to the correct section
@@ -92,7 +131,10 @@ function addTaskToSection(status, taskElement) {
 // Function to add event listeners to task buttons
 function addTaskEventListeners(taskElement) {
     taskElement.querySelector('.delete-btn').addEventListener('click', function () {
+        const taskIndex = tasks.findIndex(task => task.name === taskElement.querySelector('h2').textContent);
+        tasks.splice(taskIndex, 1); // Remove task from the array
         taskElement.remove();
+        updateTaskCounters(); // Update counters on task removal
     });
 
     taskElement.querySelector('.edit-btn').addEventListener('click', function () {
@@ -117,3 +159,6 @@ function addTaskEventListeners(taskElement) {
         modal.classList.remove('hidden');
     });
 }
+
+// Initial call to update counters
+updateTaskCounters();

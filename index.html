@@ -37,7 +37,7 @@
                 <form id="taskForm" class="space-y-4">
                     <div>
                         <label for="task" class="block text-sm font-medium text-gray-700">Task</label>
-                        <input type="text" id="task" name="task" class="block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter the task" required>
+                        <input type="text" id="task" name="task" maxlength="30" class="block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter the task" required>
                     </div>
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
@@ -45,7 +45,7 @@
                     </div>
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description" name="description" rows="4" class="block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter a description for the task" required></textarea>
+                        <textarea id="description" name="description" rows="4" maxlength="38" class="block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Enter a description for the task" required></textarea>
                     </div>
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700">Task Status</label>
