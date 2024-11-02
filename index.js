@@ -1,44 +1,45 @@
 let tasks = [];
 
-// Get the modal and button elements
+// Cache DOM elements for efficiency
 const modal = document.getElementById('taskModal');
 const addTaskBtn = document.getElementById('addTaskBtn');
-const closeModal = document.getElementById('closeModal');
-let currentTask = null; // To keep track of the task being edited
+const closeModalButton = document.getElementById('closeModal');
+const taskForm = document.getElementById('taskForm');
+const todoSection = document.getElementById('todo-section');
+const inProgressSection = document.getElementById('in-progress-section');
+const doneSection = document.getElementById('done-section');
+
+let currentTask = null; // Track the task being edited
+
+// Open and Close Modal Functions
+function openModal() {
+    modal.classList.remove('hidden');
+}
+
+function closeModal() {
+    modal.classList.add('hidden');
+    taskForm.reset();
+    currentTask = null;
+}
 
 // Show modal when clicking "Add Task+"
-addTaskBtn.onclick = function () {
-    modal.classList.remove('hidden');
-    currentTask = null; // Reset current task
-    taskForm.reset(); // Reset form fields
-};
+addTaskBtn.onclick = openModal;
+closeModalButton.onclick = closeModal;
 
-// Close modal when clicking the "Close" button
-closeModal.onclick = function () {
-    modal.classList.add('hidden');
-};
-
-// Handle form submission
-const taskForm = document.getElementById('taskForm');
-
+// Update task counters
 function updateTaskCounters() {
-    let todoCount = 0;
-    let doingCount = 0;
-    let doneCount = 0;
-
-    tasks.forEach(task => {
-        if (task.status === 'do') todoCount++;
-        else if (task.status === 'doing') doingCount++;
-        else if (task.status === 'done') doneCount++;
-    });
+    let todoCount = tasks.filter(task => task.status === 'do').length;
+    let doingCount = tasks.filter(task => task.status === 'doing').length;
+    let doneCount = tasks.filter(task => task.status === 'done').length;
 
     document.getElementById('todo-count').textContent = `(${todoCount})`;
     document.getElementById('in-progress-count').textContent = `(${doingCount})`;
     document.getElementById('done-count').textContent = `(${doneCount})`;
 }
 
+// Task form submission handling
 taskForm.onsubmit = function (e) {
-    e.preventDefault(); // Prevent form from submitting normally
+    e.preventDefault();
 
     // Form values
     const taskName = document.getElementById('task').value;
@@ -47,118 +48,102 @@ taskForm.onsubmit = function (e) {
     const taskStatus = document.getElementById('status').value;
     const taskPriority = document.getElementById('priority').value;
 
-    if (!taskName) {
-        alert("Task name is required!");
-        return; // Prevent further execution if task name is missing
-    }
-
-    const newTask = {
-        name: taskName,
-        date: taskDate,
-        description: taskDescription,
-        status: taskStatus,
-        priority: taskPriority,
-    };
+    const newTask = { name: taskName, date: taskDate, description: taskDescription, status: taskStatus, priority: taskPriority };
 
     if (currentTask) {
-        // Update existing task
         const taskIndex = tasks.findIndex(task => task.name === currentTask.querySelector('h2').textContent);
-        tasks[taskIndex] = newTask; // Update the task in the array
-
-        currentTask.querySelector('h2').textContent = taskName;
-        currentTask.querySelector('span').textContent = taskDate;
-        currentTask.querySelector('p').textContent = taskDescription;
-        currentTask.querySelector('.text-sm.text-gray-600').textContent = `Priority: ${taskPriority}`;
-
-        // Update the task status in the appropriate section
-        const previousStatus = currentTask.dataset.status;
-        if (previousStatus !== taskStatus) {
-            // Move task to the new section based on updated status
-            currentTask.remove();
-            addTaskToSection(taskStatus, currentTask);
-        }
+        tasks[taskIndex] = newTask;
     } else {
-        // Add new task to the array
         tasks.push(newTask);
+    }
 
-        // Create new task card
-        const newTaskElement = document.createElement('div');
-        newTaskElement.classList.add('border', 'rounded-md', 'shadow-md', 'p-4');
-        newTaskElement.innerHTML = `
+    renderTasks();
+    updateTaskCounters();
+    closeModal();
+};
+
+// Render tasks
+function renderTasks() {
+    todoSection.innerHTML = '';
+    inProgressSection.innerHTML = '';
+    doneSection.innerHTML = '';
+
+    tasks.forEach(task => {
+        const taskHTML = createTaskHTML(task);
+
+        if (task.status === 'do') {
+            todoSection.innerHTML += taskHTML;
+        } else if (task.status === 'doing') {
+            inProgressSection.innerHTML += taskHTML;
+        } else if (task.status === 'done') {
+            doneSection.innerHTML += taskHTML;
+        }
+    });
+
+    // Event listeners for edit and delete buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', openEditModal));
+    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', deleteTask));
+}
+
+// Priority Color
+function createTaskHTML(task) {
+    let priorityColor;
+
+    switch (task.priority) {
+        case 'P1':
+            priorityColor = 'bg-red-500'; 
+            break;
+        case 'P2':
+            priorityColor = 'bg-orange-500';
+            break;
+        case 'P3':
+            priorityColor = 'bg-green-500'; 
+            break;
+        default:
+            priorityColor = 'bg-gray-300';
+    }
+
+    return `
+        <div class="task-card border rounded-md shadow-md p-4" data-status="${task.status}">
             <div class="flex justify-between items-center">
-                <h2 class="text-lg font-bold">${taskName}</h2>
-                <span class="text-sm text-gray-500">${taskDate}</span>
+                <h2 class="text-lg font-bold">${task.name}</h2>
+                <span class="text-sm text-gray-500">${task.date}</span>
             </div>
-            <p class="text-gray-700 mt-2">${taskDescription}</p>
-            <p class="text-sm text-gray-600">Priority: ${taskPriority}</p>
+            <p class="text-gray-700 mt-2">${task.description}</p>
+            <p class="text-sm text-gray-600">Priority: <span class="${priorityColor} text-white px-2 py-1 rounded">${task.priority}</span></p>
             <div class="flex justify-end gap-3 mt-4">
                 <button class="edit-btn bg-amber-300 text-white py-2 px-4 rounded-md">Edit</button>
                 <button class="delete-btn bg-red-600 text-white py-2 px-4 rounded-md">Delete</button>
             </div>
-        `;
+        </div>
+    `;
+}
 
-        // Append task to the correct section based on status
-        addTaskToSection(taskStatus, newTaskElement);
-    }
+// Open edit modal with current task data
+function openEditModal(e) {
+    const taskCard = e.target.closest('.task-card');
+    const taskName = taskCard.querySelector('h2').textContent;
+    const task = tasks.find(t => t.name === taskName);
 
-    // Close modal after adding/updating task
-    modal.classList.add('hidden');
-    currentTask = null; // Reset current task
-    taskForm.reset(); // Reset form fields
+    document.getElementById('task').value = task.name;
+    document.getElementById('date').value = task.date;
+    document.getElementById('description').value = task.description;
+    document.getElementById('status').value = task.status;
+    document.getElementById('priority').value = task.priority;
 
-    // Update task counters
+    currentTask = taskCard;
+    openModal();
+}
+
+// Delete task function
+function deleteTask(e) {
+    const taskCard = e.target.closest('.task-card');
+    const taskName = taskCard.querySelector('h2').textContent;
+
+    tasks = tasks.filter(task => task.name !== taskName);
+    renderTasks();
     updateTaskCounters();
-};
-
-// Function to add task to the correct section
-function addTaskToSection(status, taskElement) {
-    let section;
-    if (status === "do") {
-        section = document.getElementById('todo-section');
-    } else if (status === "doing") {
-        section = document.getElementById('in-progress-section');
-    } else if (status === "done") {
-        section = document.getElementById('done-section');
-    }
-
-    taskElement.dataset.status = status; // Store the status in a data attribute
-    section.appendChild(taskElement);
-
-    // Add event listeners for the new task's buttons
-    addTaskEventListeners(taskElement);
 }
 
-// Function to add event listeners to task buttons
-function addTaskEventListeners(taskElement) {
-    taskElement.querySelector('.delete-btn').addEventListener('click', function () {
-        const taskIndex = tasks.findIndex(task => task.name === taskElement.querySelector('h2').textContent);
-        tasks.splice(taskIndex, 1); // Remove task from the array
-        taskElement.remove();
-        updateTaskCounters(); // Update counters on task removal
-    });
-
-    taskElement.querySelector('.edit-btn').addEventListener('click', function () {
-        // Populate the form with existing task details
-        document.getElementById('task').value = taskElement.querySelector('h2').textContent;
-        document.getElementById('date').value = taskElement.querySelector('span').textContent;
-        document.getElementById('description').value = taskElement.querySelector('p').textContent;
-
-        // Set the priority
-        const priorityText = taskElement.querySelector('.text-sm.text-gray-600').textContent;
-        document.getElementById('priority').value = priorityText.includes('P1') ? 'P1' : 
-            priorityText.includes('P2') ? 'P2' : 'P3';
-
-        // Set the status
-        const taskStatus = taskElement.dataset.status; // Get status from data attribute
-        document.getElementById('status').value = taskStatus;
-
-        // Set currentTask to the task being edited
-        currentTask = taskElement;
-
-        // Show modal
-        modal.classList.remove('hidden');
-    });
-}
-
-// Initial call to update counters
+renderTasks();
 updateTaskCounters();
